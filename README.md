@@ -9,5 +9,5 @@ Proyecto para comparar diferentes algoritmos de ordenamiento:
 
 ## Equipo
 - Tiffany
-- José
+- Juan
 - Fatima
