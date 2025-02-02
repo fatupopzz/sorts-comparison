@@ -16,7 +16,7 @@ Responsable de:
 - Implementación de QuickSort
 - Pruebas unitarias de ambos algoritmos
 
-## Jose 
+## Juan 
 - Implementación de InsertionSort
 - Implementación de RadixSort
 - Pruebas unitarias de ambos algoritmos
