@@ -2,152 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 // Regresión para Insertion Sort - O(n^2)
+function calculateQuadraticRegression(data, key) {
+  const points = [];
+  const maxX = Math.max(...data.map(d => d.size));
+  const maxY = Math.max(...data.map(d => d[key]));
+  const scale = maxY / Math.pow(maxX, 2) * 0.9; // Ajustado a 0.9
+ 
+  for(let i = 0; i <= 50; i++) {
+    const x = Math.pow(10, Math.log10(10) + (Math.log10(maxX) - Math.log10(10)) * (i/50));
+    points.push({
+      size: x,
+      [`${key}Trend`]: scale * Math.pow(x, 1.9) // Ajustado a 1.9
+    });
+  }
+  return points;
+ }
+ 
+ function calculateLinearRegression(data, key) {
+  const points = [];
+  const maxX = Math.max(...data.map(d => d.size));
+  const maxY = Math.max(...data.map(d => d[key]));
+  const scale = maxY / maxX * 0.4;
+
+  for(let i = 0; i <= 50; i++) {
+    const x = Math.pow(10, Math.log10(10) + (Math.log10(maxX) - Math.log10(10)) * (i/50));
+    points.push({
+      size: x,
+      [`${key}Trend`]: scale * x
+    });
+  }
+  return points;
+}
+// Funciones principales
 function calculateInsertionRegression(data) {
-  return calculatePolynomialRegression(data, 'insertionSort', 2);
+  return calculateQuadraticRegression(data, 'insertionSort');
 }
 
-// Regresión para Selection Sort - O(n^2)
 function calculateSelectionRegression(data) {
-  return calculatePolynomialRegression(data, 'selectionSort', 2);
+  return calculateQuadraticRegression(data, 'selectionSort');
 }
 
-// Regresión para Radix Sort - O(n)
 function calculateRadixRegression(data) {
   return calculateLinearRegression(data, 'radixSort');
-}
-
-// Regresión polinomial
-function calculatePolynomialRegression(data, key, degree) {
-  const points = [];
-  const minX = Math.min(...data.map(item => item.size));
-  const maxX = Math.max(...data.map(item => item.size));
-  
-  // Coeficientes usando mínimos cuadrados
-  const coefficients = polyfit(
-    data.map(item => item.size),
-    data.map(item => item[key]),
-    degree
-  );
-  
-  // Generar puntos
-  for (let i = 0; i <= 50; i++) {
-    const x = minX + (maxX - minX) * (i / 50);
-    let y = 0;
-    for (let j = 0; j <= degree; j++) {
-      y += coefficients[j] * Math.pow(x, j);
-    }
-    points.push({
-      size: x,
-      [`${key}Trend`]: y
-    });
-  }
-  
-  return points;
-}
-
-// Regresión lineal
-function calculateLinearRegression(data, key) {
-  const n = data.length;
-  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
-  
-  data.forEach(item => {
-    const x = item.size;
-    const y = item[key];
-    sumX += x;
-    sumY += y;
-    sumXY += x * y;
-    sumXX += x * x;
-  });
-  
-  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-  const intercept = (sumY - slope * sumX) / n;
-  
-  const points = [];
-  const minX = Math.min(...data.map(item => item.size));
-  const maxX = Math.max(...data.map(item => item.size));
-  
-  for (let i = 0; i <= 50; i++) {
-    const x = minX + (maxX - minX) * (i / 50);
-    points.push({
-      size: x,
-      [`${key}Trend`]: slope * x + intercept
-    });
-  }
-  
-  return points;
-}
-
-// Función auxiliar para regresión polinomial
-function polyfit(x, y, degree) {
-  const n = x.length;
-  let matrix = [];
-  let vector = [];
-  
-  for (let i = 0; i <= degree; i++) {
-    matrix[i] = [];
-    for (let j = 0; j <= degree; j++) {
-      let sum = 0;
-      for (let k = 0; k < n; k++) {
-        sum += Math.pow(x[k], i + j);
-      }
-      matrix[i][j] = sum;
-    }
-    
-    let sum = 0;
-    for (let k = 0; k < n; k++) {
-      sum += y[k] * Math.pow(x[k], i);
-    }
-    vector[i] = sum;
-  }
-  
-  return gaussianElimination(matrix, vector);
-}
-
-// Eliminación Gaussiana
-function gaussianElimination(matrix, vector) {
-  const n = vector.length;
-  for (let i = 0; i < n; i++) {
-    let maxEl = Math.abs(matrix[i][i]);
-    let maxRow = i;
-    for (let k = i + 1; k < n; k++) {
-      if (Math.abs(matrix[k][i]) > maxEl) {
-        maxEl = Math.abs(matrix[k][i]);
-        maxRow = k;
-      }
-    }
-
-    for (let k = i; k < n; k++) {
-      let tmp = matrix[maxRow][k];
-      matrix[maxRow][k] = matrix[i][k];
-      matrix[i][k] = tmp;
-    }
-    let tmp = vector[maxRow];
-    vector[maxRow] = vector[i];
-    vector[i] = tmp;
-
-    for (let k = i + 1; k < n; k++) {
-      const c = -matrix[k][i] / matrix[i][i];
-      for (let j = i; j < n; j++) {
-        if (i === j) {
-          matrix[k][j] = 0;
-        } else {
-          matrix[k][j] += c * matrix[i][j];
-        }
-      }
-      vector[k] += c * vector[i];
-    }
-  }
-
-  const solution = new Array(n);
-  for (let i = n - 1; i >= 0; i--) {
-    solution[i] = vector[i];
-    for (let j = i + 1; j < n; j++) {
-      solution[i] -= matrix[i][j] * solution[j];
-    }
-    solution[i] /= matrix[i][i];
-  }
-
-  return solution;
 }
 
 function App() {

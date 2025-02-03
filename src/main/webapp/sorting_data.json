@@ -1,38 +1,38 @@
 [
   {
     "size": 10,
-    "insertionTime": 6542,
-    "radixTime": 1966166,
-    "selectionTime": 2000
+    "insertionTime": 1709,
+    "radixTime": 2223792,
+    "selectionTime": 2041
   },
   {
     "size": 100,
-    "insertionTime": 29333,
-    "radixTime": 31084,
-    "selectionTime": 46666
+    "insertionTime": 31291,
+    "radixTime": 70083,
+    "selectionTime": 47167
   },
   {
     "size": 500,
-    "insertionTime": 686500,
-    "radixTime": 103125,
-    "selectionTime": 692167
+    "insertionTime": 756834,
+    "radixTime": 108875,
+    "selectionTime": 760250
   },
   {
     "size": 1000,
-    "insertionTime": 499500,
-    "radixTime": 155125,
-    "selectionTime": 982958
+    "insertionTime": 1001375,
+    "radixTime": 166000,
+    "selectionTime": 996459
   },
   {
     "size": 2000,
-    "insertionTime": 2409208,
-    "radixTime": 372583,
-    "selectionTime": 1146375
+    "insertionTime": 1780916,
+    "radixTime": 584750,
+    "selectionTime": 2846334
   },
   {
     "size": 3000,
-    "insertionTime": 1588667,
-    "radixTime": 450500,
-    "selectionTime": 1636833
+    "insertionTime": 5684250,
+    "radixTime": 444209,
+    "selectionTime": 1709125
   }
 ]
