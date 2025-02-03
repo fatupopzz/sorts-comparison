@@ -1,1 +1,38 @@
-{"Radix Sort":[{"algorithm":"Radix Sort","arraySize":10,"timeNanos":339875},{"algorithm":"Radix Sort","arraySize":100,"timeNanos":29792},{"algorithm":"Radix Sort","arraySize":500,"timeNanos":111000},{"algorithm":"Radix Sort","arraySize":1000,"timeNanos":167625},{"algorithm":"Radix Sort","arraySize":2000,"timeNanos":298333},{"algorithm":"Radix Sort","arraySize":3000,"timeNanos":424500}],"Insertion Sort":[{"algorithm":"Insertion Sort","arraySize":10,"timeNanos":3250},{"algorithm":"Insertion Sort","arraySize":100,"timeNanos":32417},{"algorithm":"Insertion Sort","arraySize":500,"timeNanos":799167},{"algorithm":"Insertion Sort","arraySize":1000,"timeNanos":720666},{"algorithm":"Insertion Sort","arraySize":2000,"timeNanos":2029084},{"algorithm":"Insertion Sort","arraySize":3000,"timeNanos":1612042}],"Selection Sort":[{"algorithm":"Selection Sort","arraySize":10,"timeNanos":4208},{"algorithm":"Selection Sort","arraySize":100,"timeNanos":47000},{"algorithm":"Selection Sort","arraySize":500,"timeNanos":913042},{"algorithm":"Selection Sort","arraySize":1000,"timeNanos":1011458},{"algorithm":"Selection Sort","arraySize":2000,"timeNanos":812250},{"algorithm":"Selection Sort","arraySize":3000,"timeNanos":1716542}]}
+[
+  {
+    "size": 10,
+    "insertionTime": 6542,
+    "radixTime": 1966166,
+    "selectionTime": 2000
+  },
+  {
+    "size": 100,
+    "insertionTime": 29333,
+    "radixTime": 31084,
+    "selectionTime": 46666
+  },
+  {
+    "size": 500,
+    "insertionTime": 686500,
+    "radixTime": 103125,
+    "selectionTime": 692167
+  },
+  {
+    "size": 1000,
+    "insertionTime": 499500,
+    "radixTime": 155125,
+    "selectionTime": 982958
+  },
+  {
+    "size": 2000,
+    "insertionTime": 2409208,
+    "radixTime": 372583,
+    "selectionTime": 1146375
+  },
+  {
+    "size": 3000,
+    "insertionTime": 1588667,
+    "radixTime": 450500,
+    "selectionTime": 1636833
+  }
+]
