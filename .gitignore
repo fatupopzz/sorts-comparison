@@ -1,8 +1,8 @@
-*.class
-*.log
-*.jar
-*.war
 target/
+node_modules/
+dist/
+numbers.txt
+sorting_data.json
 .idea/
 *.iml
 .vscode/
