@@ -77,6 +77,34 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+            <plugin>
+    <groupId>org.eclipse.jetty</groupId>
+    <artifactId>jetty-maven-plugin</artifactId>
+    <version>9.4.44.v20210927</version>
+    <configuration>
+        <webApp>
+            <contextPath>/</contextPath>
+            <warSourceDirectory>${project.basedir}/src/main/webapp</warSourceDirectory>
+        </webApp>
+        <scanIntervalSeconds>10</scanIntervalSeconds>
+        <connectors>
+            <connector implementation="org.eclipse.jetty.server.ServerConnector">
+                <port>8080</port>
+                <gzip>
+                    <minGzipSize>256</minGzipSize>
+                    <includedMimeTypes>
+                        <includedMimeType>text/html</includedMimeType>
+                        <includedMimeType>text/plain</includedMimeType>
+                        <includedMimeType>text/xml</includedMimeType>
+                        <includedMimeType>text/css</includedMimeType>
+                        <includedMimeType>application/javascript</includedMimeType>
+                        <includedMimeType>application/json</includedMimeType>
+                    </includedMimeTypes>
+                </gzip>
+            </connector>
+        </connectors>
+    </configuration>
+</plugin>
 
             <!-- Plugin para crear jar ejecutable -->
             <plugin>
