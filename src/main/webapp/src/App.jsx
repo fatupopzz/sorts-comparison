@@ -1,42 +1,153 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-function calculateLogRegression(data, key) {
-  const n = data.length;
-  let sumLnX = 0;
-  let sumY = 0;
-  let sumLnXY = 0;
-  let sumLnXLnX = 0;
+// Regresión para Insertion Sort - O(n^2)
+function calculateInsertionRegression(data) {
+  return calculatePolynomialRegression(data, 'insertionSort', 2);
+}
 
-  data.forEach(item => {
-    const x = item.size;
-    const y = item[key];
-    const lnX = Math.log(x);
-    sumLnX += lnX;
-    sumY += y;
-    sumLnXY += lnX * y;
-    sumLnXLnX += lnX * lnX;
-  });
+// Regresión para Selection Sort - O(n^2)
+function calculateSelectionRegression(data) {
+  return calculatePolynomialRegression(data, 'selectionSort', 2);
+}
 
-  // y = a + b*ln(x)
-  const b = (n * sumLnXY - sumLnX * sumY) / (n * sumLnXLnX - sumLnX * sumLnX);
-  const a = (sumY - b * sumLnX) / n;
+// Regresión para Radix Sort - O(n)
+function calculateRadixRegression(data) {
+  return calculateLinearRegression(data, 'radixSort');
+}
 
-  // Generar puntos para la línea de regresión logarítmica
+// Regresión polinomial
+function calculatePolynomialRegression(data, key, degree) {
   const points = [];
   const minX = Math.min(...data.map(item => item.size));
   const maxX = Math.max(...data.map(item => item.size));
-  const steps = 50;
-
-  for (let i = 0; i <= steps; i++) {
-    const x = minX * Math.pow(maxX/minX, i/steps);
+  
+  // Coeficientes usando mínimos cuadrados
+  const coefficients = polyfit(
+    data.map(item => item.size),
+    data.map(item => item[key]),
+    degree
+  );
+  
+  // Generar puntos
+  for (let i = 0; i <= 50; i++) {
+    const x = minX + (maxX - minX) * (i / 50);
+    let y = 0;
+    for (let j = 0; j <= degree; j++) {
+      y += coefficients[j] * Math.pow(x, j);
+    }
     points.push({
       size: x,
-      [`${key}Trend`]: a + b * Math.log(x)
+      [`${key}Trend`]: y
     });
   }
-
+  
   return points;
+}
+
+// Regresión lineal
+function calculateLinearRegression(data, key) {
+  const n = data.length;
+  let sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+  
+  data.forEach(item => {
+    const x = item.size;
+    const y = item[key];
+    sumX += x;
+    sumY += y;
+    sumXY += x * y;
+    sumXX += x * x;
+  });
+  
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+  
+  const points = [];
+  const minX = Math.min(...data.map(item => item.size));
+  const maxX = Math.max(...data.map(item => item.size));
+  
+  for (let i = 0; i <= 50; i++) {
+    const x = minX + (maxX - minX) * (i / 50);
+    points.push({
+      size: x,
+      [`${key}Trend`]: slope * x + intercept
+    });
+  }
+  
+  return points;
+}
+
+// Función auxiliar para regresión polinomial
+function polyfit(x, y, degree) {
+  const n = x.length;
+  let matrix = [];
+  let vector = [];
+  
+  for (let i = 0; i <= degree; i++) {
+    matrix[i] = [];
+    for (let j = 0; j <= degree; j++) {
+      let sum = 0;
+      for (let k = 0; k < n; k++) {
+        sum += Math.pow(x[k], i + j);
+      }
+      matrix[i][j] = sum;
+    }
+    
+    let sum = 0;
+    for (let k = 0; k < n; k++) {
+      sum += y[k] * Math.pow(x[k], i);
+    }
+    vector[i] = sum;
+  }
+  
+  return gaussianElimination(matrix, vector);
+}
+
+// Eliminación Gaussiana
+function gaussianElimination(matrix, vector) {
+  const n = vector.length;
+  for (let i = 0; i < n; i++) {
+    let maxEl = Math.abs(matrix[i][i]);
+    let maxRow = i;
+    for (let k = i + 1; k < n; k++) {
+      if (Math.abs(matrix[k][i]) > maxEl) {
+        maxEl = Math.abs(matrix[k][i]);
+        maxRow = k;
+      }
+    }
+
+    for (let k = i; k < n; k++) {
+      let tmp = matrix[maxRow][k];
+      matrix[maxRow][k] = matrix[i][k];
+      matrix[i][k] = tmp;
+    }
+    let tmp = vector[maxRow];
+    vector[maxRow] = vector[i];
+    vector[i] = tmp;
+
+    for (let k = i + 1; k < n; k++) {
+      const c = -matrix[k][i] / matrix[i][i];
+      for (let j = i; j < n; j++) {
+        if (i === j) {
+          matrix[k][j] = 0;
+        } else {
+          matrix[k][j] += c * matrix[i][j];
+        }
+      }
+      vector[k] += c * vector[i];
+    }
+  }
+
+  const solution = new Array(n);
+  for (let i = n - 1; i >= 0; i--) {
+    solution[i] = vector[i];
+    for (let j = i + 1; j < n; j++) {
+      solution[i] -= matrix[i][j] * solution[j];
+    }
+    solution[i] /= matrix[i][i];
+  }
+
+  return solution;
 }
 
 function App() {
@@ -69,11 +180,10 @@ function App() {
         
         setData(transformedData);
 
-        // Calcular regresiones logarítmicas
         setTrendlines({
-          insertion: calculateLogRegression(transformedData, 'insertionSort'),
-          radix: calculateLogRegression(transformedData, 'radixSort'),
-          selection: calculateLogRegression(transformedData, 'selectionSort')
+          insertion: calculateInsertionRegression(transformedData),
+          radix: calculateRadixRegression(transformedData),
+          selection: calculateSelectionRegression(transformedData)
         });
 
         setLoading(false);
@@ -159,7 +269,6 @@ function App() {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        {/* Título */}
         <div style={{
           background: 'linear-gradient(to bottom, #4CAF50, #388E3C)',
           borderRadius: '25px',
@@ -185,7 +294,6 @@ function App() {
           }}>Comparación de Rendimiento con Líneas de Tendencia</p>
         </div>
 
-        {/* Controles */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -206,7 +314,6 @@ function App() {
           </button>
         </div>
 
-        {/* Gráfica */}
         <div style={{
           background: 'rgba(255, 255, 255, 0.4)',
           borderRadius: '25px',
@@ -274,7 +381,6 @@ function App() {
               }}
             />
             
-            {/* Datos reales */}
             {showData && (
               <>
                 <Line
