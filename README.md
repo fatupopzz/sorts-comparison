@@ -1,4 +1,4 @@
-# Sorting Algorithms Comparison
+# Sorting Algorithms Comparacion
 
 Proyecto para comparar el rendimiento de diferentes algoritmos de ordenamiento.
 
