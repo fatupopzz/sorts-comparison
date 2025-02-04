@@ -1,48 +1,102 @@
-// Main.java
 package com.uvg.sorting;
+
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.uvg.sorting.algorithms.InsertionSort;
 import com.uvg.sorting.algorithms.RadixSort;
 import com.uvg.sorting.algorithms.SelectionSort;
+import com.uvg.sorting.utils.Regression;
+import com.uvg.sorting.utils.Regression.Point;
 
 public class Main {
     public static void main(String[] args) {
-        // Tamaños de arrays a probar
-        int[] sizes = {10, 100, 500, 1000, 2000, 3000};
+        // Generar tamaños uniformemente distribuidos en escala logarítmica
+        int[] sizes = generateSizes(10, 3000, 12); // 12 puntos entre 10 y 3000
         List<SortResult> results = new ArrayList<>();
+        
+        // Listas para los puntos de regresión
+        List<Point> insertionPoints = new ArrayList<>();
+        List<Point> radixPoints = new ArrayList<>();
+        List<Point> selectionPoints = new ArrayList<>();
+        
+        // Ejecutar múltiples veces para obtener un promedio
+        int repetitions = 5;
         
         for (int size : sizes) {
             System.out.println("Testing with size: " + size);
-            int[] array = generateRandomArray(size);
             
-            // Medir tiempo para cada algoritmo
-            long insertionTime = measureSort(new InsertionSort(), array.clone());
-            System.out.println("Insertion Sort (size " + size + "): " + insertionTime + " ns");
+            // Variables para almacenar los promedios
+            long avgInsertionTime = 0;
+            long avgRadixTime = 0;
+            long avgSelectionTime = 0;
             
-            long radixTime = measureSort(new RadixSort(), array.clone());
-            System.out.println("Radix Sort (size " + size + "): " + radixTime + " ns");
+            for (int rep = 0; rep < repetitions; rep++) {
+                int[] array = generateRandomArray(size);
+                
+                // Medir tiempo para cada algoritmo
+                avgInsertionTime += measureSort(new InsertionSort(), array.clone());
+                avgRadixTime += measureSort(new RadixSort(), array.clone());
+                avgSelectionTime += measureSort(new SelectionSort(), array.clone());
+            }
             
-            long selectionTime = measureSort(new SelectionSort(), array.clone());
-            System.out.println("Selection Sort (size " + size + "): " + selectionTime + " ns");
+            // Calcular promedios
+            avgInsertionTime /= repetitions;
+            avgRadixTime /= repetitions;
+            avgSelectionTime /= repetitions;
             
-            // Guardar resultados
-            results.add(new SortResult(size, insertionTime, radixTime, selectionTime));
+            System.out.println("Insertion Sort (size " + size + "): " + avgInsertionTime + " ns");
+            System.out.println("Radix Sort (size " + size + "): " + avgRadixTime + " ns");
+            System.out.println("Selection Sort (size " + size + "): " + avgSelectionTime + " ns");
             
-            // Guardar números en archivo
-            saveArrayToFile(array, "numbers.txt");
-            System.out.println("Números guardados en numbers.txt");
+            // Convertir a milisegundos y guardar puntos para regresión
+            insertionPoints.add(new Point(size, avgInsertionTime / 1_000_000.0));
+            radixPoints.add(new Point(size, avgRadixTime / 1_000_000.0));
+            selectionPoints.add(new Point(size, avgSelectionTime / 1_000_000.0));
+            
+            results.add(new SortResult(size, avgInsertionTime, avgRadixTime, avgSelectionTime));
         }
         
-        // Guardar resultados en JSON
-        saveResultsToJson(results, "src/main/webapp/sorting_data.json");
-        System.out.println("Resultados guardados en sorting_data.json");
+        // Calcular regresiones
+        List<Point> insertionRegression = Regression.calculateRegression(insertionPoints, "quadratic");
+        List<Point> radixRegression = Regression.calculateRegression(radixPoints, "linear");
+        List<Point> selectionRegression = Regression.calculateRegression(selectionPoints, "quadratic");
+
+        // Crear objeto JSON con datos y regresiones
+        JsonObject finalData = new JsonObject();
+        finalData.add("rawData", new Gson().toJsonTree(results));
+        
+        JsonObject regressionsObj = new JsonObject();
+        regressionsObj.add("insertion", new Gson().toJsonTree(insertionRegression));
+        regressionsObj.add("radix", new Gson().toJsonTree(radixRegression));
+        regressionsObj.add("selection", new Gson().toJsonTree(selectionRegression));
+        finalData.add("regressions", regressionsObj);
+
+        // Guardar en JSON
+        try (FileWriter writer = new FileWriter("src/main/webapp/sorting_data.json")) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+            gson.toJson(finalData, writer);
+            System.out.println("Resultados y regresiones guardados en sorting_data.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static int[] generateSizes(int min, int max, int count) {
+        int[] sizes = new int[count];
+        double logMin = Math.log(min);
+        double logMax = Math.log(max);
+        double interval = (logMax - logMin) / (count - 1);
+        
+        for (int i = 0; i < count; i++) {
+            sizes[i] = (int) Math.round(Math.exp(logMin + interval * i));
+        }
+        return sizes;
     }
     
     private static int[] generateRandomArray(int size) {
@@ -63,25 +117,6 @@ public class Main {
             ((SelectionSort) sorter).sort(arr);
         }
         return System.nanoTime() - startTime;
-    }
-    
-    private static void saveArrayToFile(int[] array, String filename) {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(filename))) {
-            for (int num : array) {
-                writer.println(num);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    private static void saveResultsToJson(List<SortResult> results, String filename) {
-        try (FileWriter writer = new FileWriter(filename)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            gson.toJson(results, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
     
     static class SortResult {

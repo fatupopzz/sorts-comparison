@@ -1,54 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
-
-// Regresión para Insertion Sort - O(n^2)
-function calculateQuadraticRegression(data, key) {
-  const points = [];
-  const maxX = Math.max(...data.map(d => d.size));
-  const maxY = Math.max(...data.map(d => d[key]));
-  const scale = maxY / Math.pow(maxX, 2) * 0.9; // Ajustado a 0.9
- 
-  for(let i = 0; i <= 50; i++) {
-    const x = Math.pow(10, Math.log10(10) + (Math.log10(maxX) - Math.log10(10)) * (i/50));
-    points.push({
-      size: x,
-      [`${key}Trend`]: scale * Math.pow(x, 1.9) // Ajustado a 1.9
-    });
-  }
-  return points;
- }
- 
- function calculateLinearRegression(data, key) {
-  const points = [];
-  const maxX = Math.max(...data.map(d => d.size));
-  const maxY = Math.max(...data.map(d => d[key]));
-  const scale = maxY / maxX * 0.4;
-
-  for(let i = 0; i <= 50; i++) {
-    const x = Math.pow(10, Math.log10(10) + (Math.log10(maxX) - Math.log10(10)) * (i/50));
-    points.push({
-      size: x,
-      [`${key}Trend`]: scale * x
-    });
-  }
-  return points;
-}
-// Funciones principales
-function calculateInsertionRegression(data) {
-  return calculateQuadraticRegression(data, 'insertionSort');
-}
-
-function calculateSelectionRegression(data) {
-  return calculateQuadraticRegression(data, 'selectionSort');
-}
-
-function calculateRadixRegression(data) {
-  return calculateLinearRegression(data, 'radixSort');
-}
 
 function App() {
   const [data, setData] = useState([]);
-  const [trendlines, setTrendlines] = useState({
+  const [regressions, setRegressions] = useState({
     insertion: [],
     radix: [],
     selection: []
@@ -65,21 +20,30 @@ function App() {
         if (!response.ok) throw new Error('No se pudo cargar los datos');
         const jsonData = await response.json();
         
-        const transformedData = jsonData
-          .map(item => ({
-            size: item.size,
-            insertionSort: item.insertionTime / 1000000,
-            radixSort: item.radixTime / 1000000,
-            selectionSort: item.selectionTime / 1000000
-          }))
-          .sort((a, b) => a.size - b.size);
-        
-        setData(transformedData);
+        // Transformar datos crudos
+        const rawData = jsonData.rawData.map(item => ({
+          size: item.size,
+          insertionSort: item.insertionTime / 1000000,
+          radixSort: item.radixTime / 1000000,
+          selectionSort: item.selectionTime / 1000000
+        }));
 
-        setTrendlines({
-          insertion: calculateInsertionRegression(transformedData),
-          radix: calculateRadixRegression(transformedData),
-          selection: calculateSelectionRegression(transformedData)
+        setData(rawData);
+
+        // Preparar datos de regresión
+        setRegressions({
+          insertion: jsonData.regressions.insertion.map(p => ({
+            size: p.x,
+            insertionSortTrend: p.y
+          })),
+          radix: jsonData.regressions.radix.map(p => ({
+            size: p.x,
+            radixSortTrend: p.y
+          })),
+          selection: jsonData.regressions.selection.map(p => ({
+            size: p.x,
+            selectionSortTrend: p.y
+          }))
         });
 
         setLoading(false);
@@ -221,8 +185,8 @@ function App() {
         }}>
           <LineChart
             width={800}
-            height={400}
-            margin={{ top: 10, right: 30, left: 20, bottom: 10 }}
+            height={500}
+            margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
             style={{ margin: '0 auto' }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(158, 158, 158, 0.2)" />
@@ -309,11 +273,10 @@ function App() {
               </>
             )}
             
-            {/* Líneas de tendencia */}
             {showTrendlines && (
               <>
                 <Line
-                  data={trendlines.insertion}
+                  data={regressions.insertion}
                   type="monotone"
                   dataKey="insertionSortTrend"
                   stroke="#2196F3"
@@ -323,7 +286,7 @@ function App() {
                   dot={false}
                 />
                 <Line
-                  data={trendlines.radix}
+                  data={regressions.radix}
                   type="monotone"
                   dataKey="radixSortTrend"
                   stroke="#4CAF50"
@@ -333,7 +296,7 @@ function App() {
                   dot={false}
                 />
                 <Line
-                  data={trendlines.selection}
+                  data={regressions.selection}
                   type="monotone"
                   dataKey="selectionSortTrend"
                   stroke="#FFA726"
