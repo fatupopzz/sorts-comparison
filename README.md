@@ -2,7 +2,8 @@
 
 Proyecto para comparar el rendimiento de diferentes algoritmos de ordenamiento.
 
-![image](https://github.com/user-attachments/assets/3680c616-5c69-46bd-b1f8-2dafef05414f)
+![image](https://github.com/user-attachments/assets/7e06ca50-4da2-43d8-aaef-ee95b8b7fb15)
+
 
 ## Objetivos
 a. Comparación de la complejidad de tiempo de corrida de algoritmos de sort
