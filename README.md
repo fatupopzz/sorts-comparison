@@ -2,7 +2,9 @@
 
 Proyecto para comparar el rendimiento de diferentes algoritmos de ordenamiento.
 
-![image](https://github.com/user-attachments/assets/7e06ca50-4da2-43d8-aaef-ee95b8b7fb15)
+
+![image](https://github.com/user-attachments/assets/eceef9f4-b82a-4f6d-b746-fe3a7b3aa2db)
+
 
 
 ## Objetivos
