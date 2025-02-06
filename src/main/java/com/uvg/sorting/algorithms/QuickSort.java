@@ -9,38 +9,38 @@ package com.uvg.sorting.algorithms;
  * Descripción: La clase QuickSort se encarga de ordenar listas de números
 */
 
-public class QuickSort{
 
-    //Método que parte el arreglo
-    public int partition(int[] arrayL, int peq, int alt){
-        int posPivvot = arrayL [alt];
-        int i = peq - 1;
 
-        //Reorganización de los elementos
-        for (int j = peq; j < alt; j++) {
-            if (arrayL[j] <= posPivvot) {
+public class QuickSort {
+    public void sort(int[] arr) {
+        quickSort(arr, 0, arr.length - 1);
+    }
+    
+    private void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high);
+            quickSort(arr, low, pi - 1);
+            quickSort(arr, pi + 1, high);
+        }
+    }
+    
+    private int partition(int[] arr, int low, int high) {
+        int pivot = arr[high];
+        int i = (low - 1);
+        
+        for (int j = low; j < high; j++) {
+            if (arr[j] < pivot) {
                 i++;
-                int temp = arrayL[i];
-                arrayL[i] = arrayL[j];
-                arrayL[j] = temp;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
             }
         }
-
-        int temp = arrayL[i + 1];
-        arrayL[i + 1] = arrayL [alt];
-        arrayL [alt] = temp;
-
-        //Return con la posición del pivote
+        
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        
         return i + 1;
-    }
-
-    //Método de QuickSort
-    public void quick_sort(int[] arrayL, int peq, int alt) {
-        if  (peq < alt) {
-            int posPiv = partition(arrayL, peq, alt);
-
-            quick_sort(arrayL, peq, posPiv - 1); //Subarreglo de la izquierda
-            quick_sort(arrayL, posPiv + 1, alt); //Subarreglo de la derecha
-        }
     }
 }

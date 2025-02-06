@@ -5,6 +5,8 @@ function App() {
   const [data, setData] = useState([]);
   const [regressions, setRegressions] = useState({
     insertion: [],
+    merge: [],
+    quick: [],
     radix: [],
     selection: []
   });
@@ -24,6 +26,8 @@ function App() {
         const rawData = jsonData.rawData.map(item => ({
           size: item.size,
           insertionSort: item.insertionTime / 1000000,
+          mergeSort: item.mergeTime / 1000000,
+          quickSort: item.quickTime / 1000000,
           radixSort: item.radixTime / 1000000,
           selectionSort: item.selectionTime / 1000000
         }));
@@ -35,6 +39,14 @@ function App() {
           insertion: jsonData.regressions.insertion.map(p => ({
             size: p.x,
             insertionSortTrend: p.y
+          })),
+          merge: jsonData.regressions.merge.map(p => ({
+            size: p.x,
+            mergeSortTrend: p.y
+          })),
+          quick: jsonData.regressions.quick.map(p => ({
+            size: p.x,
+            quickSortTrend: p.y
           })),
           radix: jsonData.regressions.radix.map(p => ({
             size: p.x,
@@ -255,6 +267,24 @@ function App() {
                 <Line
                   data={data}
                   type="monotone"
+                  dataKey="mergeSort"
+                  stroke="#9C27B0"
+                  strokeWidth={3}
+                  name="Merge Sort"
+                  dot
+                />
+                <Line
+                  data={data}
+                  type="monotone"
+                  dataKey="quickSort"
+                  stroke="#E91E63"
+                  strokeWidth={3}
+                  name="Quick Sort"
+                  dot
+                />
+                <Line
+                  data={data}
+                  type="monotone"
                   dataKey="radixSort"
                   stroke="#4CAF50"
                   strokeWidth={3}
@@ -283,6 +313,26 @@ function App() {
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   name="Insertion Sort (Tendencia)"
+                  dot={false}
+                />
+                <Line
+                  data={regressions.merge}
+                  type="monotone"
+                  dataKey="mergeSortTrend"
+                  stroke="#9C27B0"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Merge Sort (Tendencia)"
+                  dot={false}
+                />
+                <Line
+                  data={regressions.quick}
+                  type="monotone"
+                  dataKey="quickSortTrend"
+                  stroke="#E91E63"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  name="Quick Sort (Tendencia)"
                   dot={false}
                 />
                 <Line

@@ -9,15 +9,16 @@ package com.uvg.sorting.algorithms;
  * Descripción: La clase MergeSort se encarga de ordenar listas de números
 */
 
-public class MergeSort{
+
+public class MergeSort {
+    public void sort(int[] arr) {
+        merge_sort(arr, 0, arr.length - 1);
+    }
     
-    //Método que une los dos arreglos
-    public void merge(int[] arrayL, int m, int n, int b){
-        // Crear los subarreglos L y R
+    private void merge(int[] arrayL, int m, int n, int b) {
         int[] L = new int[n - m + 1];
         int[] R = new int[b - n];
 
-        //For para dividir el arreglo en dos subarreglos
         for (int i = 0; i < n - m + 1; i++) {
             L[i] = arrayL[m + i];
         }
@@ -25,25 +26,21 @@ public class MergeSort{
             R[j] = arrayL[n + j + 1];
         }
 
-        //Fusión entre los subarreglos
         int i = 0, j = 0;
         for (int k = m; k <= b; k++) {
-            if (i < n - m + 1 && (j >= b - n || L[i] <= R[j])){
+            if (i < n - m + 1 && (j >= b - n || L[i] <= R[j])) {
                 arrayL[k] = L[i++];
-            }else{
+            } else {
                 arrayL[k] = R[j++];
             }
         }
     }
 
-    //Método de Merge Sort
-    public void merge_sort(int[] arrayL, int p, int r){
-        if (p < r){
+    private void merge_sort(int[] arrayL, int p, int r) {
+        if (p < r) {
             int q = (p + r) / 2;
-            //División del arreglo
             merge_sort(arrayL, p, q);
             merge_sort(arrayL, q + 1, r);
-            //Método de fusión
             merge(arrayL, p, q, r);
         }
     }

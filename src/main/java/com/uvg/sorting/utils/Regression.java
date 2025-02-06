@@ -7,93 +7,126 @@ public class Regression {
     public static List<Point> calculateRegression(List<Point> data, String type) {
         switch (type) {
             case "quadratic":
-                return calculatePolynomialRegression(data, 2); // Para Selection e Insertion Sort
+                return calculateQuadraticRegression(data);
             case "linear":
-                return calculatePolynomialRegression(data, 1); // Para Radix Sort
+                return calculateLinearRegression(data);
+            case "nlogn":
+                return calculateNLogNRegression(data);
             default:
                 throw new IllegalArgumentException("Tipo de regresión no soportado");
         }
     }
 
-    private static List<Point> calculatePolynomialRegression(List<Point> data, int degree) {
+    private static List<Point> calculateQuadraticRegression(List<Point> data) {
         int n = data.size();
-        int terms = degree + 1;
-        double[][] matrix = new double[terms][terms + 1];
+        double sumX = 0, sumY = 0, sumX2 = 0, sumX3 = 0, sumX4 = 0, sumXY = 0, sumX2Y = 0;
 
-        // Construir matriz aumentada para el sistema de ecuaciones
-        for (int i = 0; i < terms; i++) {
-            for (int j = 0; j < terms; j++) {
-                matrix[i][j] = 0;
-                for (Point p : data) {
-                    matrix[i][j] += Math.pow(p.x, i + j);
-                }
-            }
-            
-            matrix[i][terms] = 0;
-            for (Point p : data) {
-                matrix[i][terms] += p.y * Math.pow(p.x, i);
-            }
+        for (Point p : data) {
+            double x = p.x;
+            double y = p.y;
+            double x2 = x * x;
+            sumX += x;
+            sumY += y;
+            sumX2 += x2;
+            sumX3 += x2 * x;
+            sumX4 += x2 * x2;
+            sumXY += x * y;
+            sumX2Y += x2 * y;
         }
 
-        // Resolver sistema usando eliminación gaussiana
-        for (int i = 0; i < terms; i++) {
-            // Encontrar pivote máximo
-            int maxRow = i;
-            for (int k = i + 1; k < terms; k++) {
-                if (Math.abs(matrix[k][i]) > Math.abs(matrix[maxRow][i])) {
-                    maxRow = k;
-                }
-            }
+        double[][] matrix = {
+            {n, sumX, sumX2, sumY},
+            {sumX, sumX2, sumX3, sumXY},
+            {sumX2, sumX3, sumX4, sumX2Y}
+        };
 
-            // Intercambiar filas
-            double[] temp = matrix[i];
-            matrix[i] = matrix[maxRow];
-            matrix[maxRow] = temp;
-
-            // Hacer el pivote 1
-            double pivot = matrix[i][i];
-            for (int j = i; j <= terms; j++) {
-                matrix[i][j] /= pivot;
-            }
-
-            // Eliminar la variable de otras ecuaciones
-            for (int k = 0; k < terms; k++) {
-                if (k != i) {
-                    double factor = matrix[k][i];
-                    for (int j = i; j <= terms; j++) {
-                        matrix[k][j] -= factor * matrix[i][j];
-                    }
+        // Gauss elimination
+        for (int i = 0; i < 3; i++) {
+            for (int j = i + 1; j < 3; j++) {
+                double factor = matrix[j][i] / matrix[i][i];
+                for (int k = i; k <= 3; k++) {
+                    matrix[j][k] -= factor * matrix[i][k];
                 }
             }
         }
 
-        // Extraer coeficientes
-        double[] coefficients = new double[terms];
-        for (int i = 0; i < terms; i++) {
-            coefficients[i] = matrix[i][terms];
-        }
+        double c = matrix[0][3] / matrix[0][0];
+        double b = (matrix[1][3] - matrix[1][0] * c) / matrix[1][1];
+        double a = (matrix[2][3] - matrix[2][0] * c - matrix[2][1] * b) / matrix[2][2];
 
-        // Generar puntos suavizados
         List<Point> regressionPoints = new ArrayList<>();
         double minX = data.stream().mapToDouble(p -> p.x).min().getAsDouble();
         double maxX = data.stream().mapToDouble(p -> p.x).max().getAsDouble();
 
-        // Usar distribución logarítmica para los puntos X
-        int numPoints = 100;
-        for (int i = 0; i <= numPoints; i++) {
-            double t = i / (double) numPoints;
-            double x = minX * Math.pow(maxX/minX, t);
-            
-            double y = 0;
-            for (int j = 0; j < terms; j++) {
-                y += coefficients[j] * Math.pow(x, j);
-            }
-            
-            if (y >= 0) { // Solo incluir puntos positivos
+        for (int i = 0; i <= 100; i++) {
+            double x = minX * Math.pow(maxX/minX, i/100.0);
+            double y = a * x * x + b * x + c;
+            if (y >= 0) {
                 regressionPoints.add(new Point(x, y));
             }
         }
 
+        return regressionPoints;
+    }
+
+    private static List<Point> calculateLinearRegression(List<Point> data) {
+        double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+        int n = data.size();
+
+        for (Point p : data) {
+            sumX += p.x;
+            sumY += p.y;
+            sumXY += p.x * p.y;
+            sumX2 += p.x * p.x;
+        }
+
+        double m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+        double b = (sumY - m * sumX) / n;
+
+        List<Point> regressionPoints = new ArrayList<>();
+        double minX = data.stream().mapToDouble(p -> p.x).min().getAsDouble();
+        double maxX = data.stream().mapToDouble(p -> p.x).max().getAsDouble();
+
+        for (int i = 0; i <= 100; i++) {
+            double x = minX * Math.pow(maxX/minX, i/100.0);
+            double y = m * x + b;
+            if (y >= 0) {
+                regressionPoints.add(new Point(x, y));
+            }
+        }
+
+        return regressionPoints;
+    }
+
+    private static List<Point> calculateNLogNRegression(List<Point> data) {
+        int n = data.size();
+        double sumY = 0, sumXLogX = 0, sumXLogX2 = 0, sumYXLogX = 0;
+        
+        for (Point p : data) {
+            double x = p.x;
+            double xLogX = x * Math.log(x);
+            sumY += p.y;
+            sumXLogX += xLogX;
+            sumXLogX2 += xLogX * xLogX;
+            sumYXLogX += p.y * xLogX;
+        }
+        
+        // y = ax*log(x) + b
+        double a = (n * sumYXLogX - sumY * sumXLogX) / (n * sumXLogX2 - sumXLogX * sumXLogX);
+        double b = (sumY - a * sumXLogX) / n;
+        
+        List<Point> regressionPoints = new ArrayList<>();
+        double minX = data.stream().mapToDouble(p -> p.x).min().getAsDouble();
+        double maxX = data.stream().mapToDouble(p -> p.x).max().getAsDouble();
+        
+        for (int i = 0; i <= 100; i++) {
+            double x = minX * Math.pow(maxX/minX, i/100.0);
+            double y = a * x * Math.log(x) + b;
+            if (y >= 0) {
+                regressionPoints.add(new Point(x, y));
+            }
+        }
+        
         return regressionPoints;
     }
 

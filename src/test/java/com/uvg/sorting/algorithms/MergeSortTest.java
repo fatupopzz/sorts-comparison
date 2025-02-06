@@ -1,4 +1,3 @@
-package com.uvg.sorting.algorithms;
 
 /*
  * Universidad del Valle de Guatemala
@@ -9,53 +8,51 @@ package com.uvg.sorting.algorithms;
  * Descripción: La clase MergeSortTest hace las pruebas unitarias de MergeSort
 */
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
-class MergeSortTest{
+package com.uvg.sorting.algorithms;
 
+import static org.junit.Assert.assertArrayEquals;
+import org.junit.Test;
+
+public class MergeSortTest {
+    
     @Test
-    void testMerge(){
-        MergeSort mergeSort = new MergeSort();
-        
-        //Caso de prueba con un arreglo de ejemplo
-        int[] array = {3, 5, 1, 2, 4, 6};
-        int[] expected = {1, 2, 3, 4, 5, 6};
-
-        //Subarreglos L y R para fusionar
-        mergeSort.merge(array, 0, 2, 5);
-        
-        //Verificar que el arreglo esté correctamente fusionado
-        assertArrayEquals(expected, array);
+    public void testEmptyArray() {
+        MergeSort sorter = new MergeSort();
+        int[] arr = {};
+        sorter.sort(arr);
+        assertArrayEquals(new int[]{}, arr);
     }
-
+    
     @Test
-    void testMergeSort(){
-        MergeSort mergeSort = new MergeSort();
-        
-        //Caso de prueba con un arreglo desordenado
-        int[] array = {3, 5, 1, 2, 4, 6};
-        int[] expected = {1, 2, 3, 4, 5, 6};
-        
-        //Llamada al método merge_sort
-        mergeSort.merge_sort(array, 0, array.length - 1);
-        
-        //Verificar que el arreglo esté ordenado correctamente
-        assertArrayEquals(expected, array);
+    public void testSingleElement() {
+        MergeSort sorter = new MergeSort();
+        int[] arr = {1};
+        sorter.sort(arr);
+        assertArrayEquals(new int[]{1}, arr);
     }
-
+    
     @Test
-    void testMergeSortAlreadySorted(){
-        MergeSort mergeSort = new MergeSort();
-        
-        //Caso de prueba con un arreglo ya ordenado
-        int[] array = {1, 2, 3, 4, 5, 6};
-        int[] expected = {1, 2, 3, 4, 5, 6};
-        
-        //Llamada al método merge_sort
-        mergeSort.merge_sort(array, 0, array.length - 1);
-        
-        //Verificar que el arreglo siga igual
-        assertArrayEquals(expected, array);
+    public void testAlreadySorted() {
+        MergeSort sorter = new MergeSort();
+        int[] arr = {1, 2, 3, 4, 5};
+        sorter.sort(arr);
+        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, arr);
+    }
+    
+    @Test
+    public void testReverseSorted() {
+        MergeSort sorter = new MergeSort();
+        int[] arr = {5, 4, 3, 2, 1};
+        sorter.sort(arr);
+        assertArrayEquals(new int[]{1, 2, 3, 4, 5}, arr);
+    }
+    
+    @Test
+    public void testDuplicateElements() {
+        MergeSort sorter = new MergeSort();
+        int[] arr = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};
+        sorter.sort(arr);
+        assertArrayEquals(new int[]{1, 1, 2, 3, 3, 4, 5, 5, 6, 9}, arr);
     }
 }
