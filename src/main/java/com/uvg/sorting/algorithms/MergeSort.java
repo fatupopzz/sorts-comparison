@@ -1,5 +1,14 @@
 package com.uvg.sorting.algorithms;
 
+/*
+ * Universidad del Valle de Guatemala
+ * Autora: Tiffany Salazar Suarez
+ * Carnet: 24630
+ * Fecha de inicio: 3/02/2025
+ * Fecha de finalización: 4/02/2025
+ * Descripción: La clase MergeSort se encarga de ordenar listas de números
+*/
+
 public class MergeSort{
     
     //Método que une los dos arreglos
