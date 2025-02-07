@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
 function App() {
+  // Estado para almacenar los datos crudos
   const [data, setData] = useState([]);
+  // Estado para almacenar los datos de regresión
   const [regressions, setRegressions] = useState({
     insertion: [],
     merge: [],
@@ -10,9 +12,13 @@ function App() {
     radix: [],
     selection: []
   });
+  // Estado para manejar el estado de carga
   const [loading, setLoading] = useState(true);
+  // Estado para manejar errores
   const [error, setError] = useState(null);
+  // Estado para mostrar/ocultar líneas de tendencia
   const [showTrendlines, setShowTrendlines] = useState(true);
+  // Estado para mostrar/ocultar datos reales
   const [showData, setShowData] = useState(true);
 
   useEffect(() => {
@@ -69,6 +75,7 @@ function App() {
     loadData();
   }, []);
 
+  // Estilo para los botones
   const buttonStyle = {
     padding: '10px 20px',
     margin: '0 10px',
@@ -82,6 +89,7 @@ function App() {
     boxShadow: '0 2px 5px rgba(31, 38, 135, 0.2)'
   };
 
+  // Estilo para los botones activos
   const activeButtonStyle = {
     ...buttonStyle,
     background: 'linear-gradient(to bottom, #2196F3, #1976D2)',
